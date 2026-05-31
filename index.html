@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JobVault — Jobsite Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#13151a; --bg-1:#1c1f28; --bg-2:#242834; --bg-3:#2d3242;
+  --border:rgba(255,255,255,.10); --border-2:rgba(255,255,255,.18);
+  --text:#f4f6fa; --text-2:#b0b8cc; --text-3:#7a84a0;
+  --blue:#4f8ef7; --blue-dim:rgba(79,142,247,.18);
+  --green:#22d37a; --green-dim:rgba(34,211,122,.14);
+  --red:#f05252; --red-dim:rgba(240,82,82,.14);
+  --amber:#f59e0b; --violet:#a78bfa; --violet-dim:rgba(167,139,250,.14);
+  --r:10px; --r-sm:7px;
+  --shadow:0 1px 3px rgba(0,0,0,.35),0 4px 16px rgba(0,0,0,.25);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.45);
+}
+body { font-family:'Geist',system-ui,sans-serif; background:var(--bg); color:var(--text); -webkit-font-smoothing:antialiased; min-height:100vh; }
+::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:99px}
+
+/* ── Screens ── */
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+#screen-login{display:none;flex-direction:row}
+#screen-login.active{display:flex}
+
+/* screens below */
+
+/* ── Nav ── */
+nav{height:56px;border-bottom:1px solid var(--border);background:rgba(19,21,26,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;flex-shrink:0}
+.nav-logo{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none}
+.nav-logo-mark{width:30px;height:30px;background:linear-gradient(135deg,#1d4ed8,#4f8ef7);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 0 0 1px rgba(79,142,247,.35),0 2px 8px rgba(79,142,247,.25)}
+.nav-logo-name{font-weight:600;font-size:.95rem;letter-spacing:-.01em;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nav-link{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r-sm);font-size:.82rem;font-weight:500;color:var(--text-3);cursor:pointer;transition:all .15s;border:none;background:transparent;text-decoration:none}
+.nav-link:hover{color:var(--text-2);background:var(--bg-2)}
+.nav-link.active{color:var(--text);background:var(--bg-2)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-user{font-size:.8rem;color:var(--text-2);padding:4px 10px;background:var(--bg-2);border:1px solid var(--border);border-radius:99px}
+
+/* ── Page ── */
+.page{flex:1;max-width:1000px;margin:0 auto;padding:36px 24px;width:100%}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r-sm);font-family:'Geist',sans-serif;font-size:.83rem;font-weight:500;letter-spacing:-.01em;cursor:pointer;transition:all .15s;border:none;white-space:nowrap;text-decoration:none}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 0 0 1px rgba(79,142,247,.5),0 2px 8px rgba(79,142,247,.28)}
+.btn-primary:hover{background:#3b7ef4}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{background:var(--bg-2);color:var(--text-2);border:1px solid var(--border-2)}
+.btn-ghost:hover{background:var(--bg-3);color:var(--text);border-color:rgba(255,255,255,.25)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(240,82,82,.25)}
+.btn-danger:hover{background:rgba(240,82,82,.22)}
+.btn-icon{width:34px;height:34px;padding:0;justify-content:center}
+
+/* ── Login ── */
+.login-left{flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px 56px;border-right:1px solid var(--border);min-width:0}
+.login-right{flex:1;display:flex;flex-direction:column;justify-content:center;padding:60px 56px;background:var(--bg-1);position:relative;overflow:hidden;min-width:0}
+.login-right::before{content:'';position:absolute;width:480px;height:480px;background:radial-gradient(circle,rgba(79,142,247,.14) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:48px}
+.login-logo-mark{width:36px;height:36px;background:linear-gradient(135deg,#1d4ed8,#4f8ef7);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 0 0 1px rgba(79,142,247,.4),0 4px 16px rgba(79,142,247,.2)}
+.login-logo-name{font-weight:700;font-size:1.1rem;letter-spacing:-.02em;color:var(--text)}
+.login-headline{font-family:'Instrument Serif',Georgia,serif;font-size:2.2rem;line-height:1.2;letter-spacing:-.02em;color:var(--text);margin-bottom:10px}
+.login-sub{font-size:.875rem;color:var(--text-2);margin-bottom:36px;line-height:1.6}
+.login-form{display:flex;flex-direction:column;gap:14px}
+.login-divider{display:flex;align-items:center;gap:10px}
+.login-divider span{font-size:.72rem;color:var(--text-3)}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.login-hint{font-size:.72rem;color:var(--text-3);margin-top:14px;text-align:center}
+.trust-header{margin-bottom:32px;position:relative;z-index:1}
+.trust-header-eyebrow{font-size:.72rem;font-weight:500;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);margin-bottom:10px}
+.trust-header-title{font-family:'Instrument Serif',Georgia,serif;font-size:1.6rem;line-height:1.25;letter-spacing:-.01em;color:var(--text)}
+.trust-list{display:flex;flex-direction:column;gap:16px;position:relative;z-index:1}
+.trust-item{display:flex;align-items:flex-start;gap:12px}
+.trust-icon{width:32px;height:32px;flex-shrink:0;background:var(--blue-dim);border:1px solid rgba(79,142,247,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--blue);margin-top:1px}
+.trust-title{font-weight:500;font-size:.875rem;color:var(--text);margin-bottom:2px}
+.trust-desc{font-size:.78rem;color:var(--text-3);line-height:1.5}
+
+/* ── Form fields ── */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:.72rem;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3)}
+.field input,.notes-ta{padding:9px 12px;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--r-sm);font-family:'Geist',sans-serif;font-size:.875rem;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+.field input::placeholder,.notes-ta::placeholder{color:var(--text-3)}
+.field input:focus,.notes-ta:focus{border-color:rgba(79,142,247,.55);box-shadow:0 0 0 3px rgba(79,142,247,.12)}
+.notes-ta{width:100%;min-height:110px;resize:vertical;line-height:1.6}
+.form-error{font-size:.78rem;color:var(--red);margin-top:4px;display:none}
+
+/* ── Page header ── */
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:12px;flex-wrap:wrap}
+.page-hdr-left{display:flex;align-items:center;gap:12px}
+.back-btn{width:34px;height:34px;border-radius:var(--r-sm);background:var(--bg-2);border:1px solid var(--border-2);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.back-btn:hover{background:var(--bg-3);color:var(--text)}
+.page-title{font-weight:600;font-size:1.35rem;letter-spacing:-.02em;color:var(--text)}
+.page-subtitle{font-size:.75rem;color:var(--text-3);margin-top:2px}
+
+/* ── Proof banner ── */
+.proof-banner{background:linear-gradient(135deg,rgba(29,78,216,.22) 0%,rgba(79,142,247,.1) 100%);border:1px solid rgba(79,142,247,.25);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:28px}
+.proof-banner-icon{color:var(--blue);flex-shrink:0}
+.proof-banner-text{font-size:.83rem;color:var(--text-2);line-height:1.5}
+.proof-banner-text strong{color:var(--text);font-weight:500}
+
+/* ── Section heading ── */
+.section-hdr{display:flex;align-items:center;gap:8px;font-size:.72rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:14px}
+.section-hdr::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── Stats bar ── */
+.stats-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.stat-pill{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r-sm);font-size:.78rem;color:var(--text-2)}
+.stat-pill strong{color:var(--text);font-weight:600}
+
+/* ── Project grid ── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.proj-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r);padding:20px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s;position:relative;overflow:hidden}
+.proj-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(79,142,247,.05) 0%,transparent 60%);opacity:0;transition:opacity .2s}
+.proj-card:hover{border-color:rgba(79,142,247,.4);box-shadow:0 0 0 1px rgba(79,142,247,.12),var(--shadow);transform:translateY(-1px)}
+.proj-card:hover::before{opacity:1}
+.proj-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.proj-icon-wrap{width:38px;height:38px;background:var(--blue-dim);border:1px solid rgba(79,142,247,.25);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+.proj-del-btn{width:28px;height:28px;border-radius:6px;background:transparent;border:1px solid transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .15s}
+.proj-card:hover .proj-del-btn{opacity:1}
+.proj-del-btn:hover{background:var(--red-dim);color:var(--red);border-color:rgba(240,82,82,.25)}
+.proj-name{font-weight:600;font-size:.95rem;letter-spacing:-.01em;color:var(--text);margin-bottom:4px}
+.proj-meta{font-size:.75rem;color:var(--text-3)}
+.proj-footer{display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.proj-stat{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--text-3)}
+
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:.72rem;font-weight:500;background:var(--bg-2);border:1px solid var(--border);color:var(--text-3)}
+.badge.green{background:var(--green-dim);border-color:rgba(34,211,122,.25);color:var(--green)}
+.badge.red{background:var(--red-dim);border-color:rgba(240,82,82,.3);color:var(--red)}
+.badge.violet{background:var(--violet-dim);border-color:rgba(167,139,250,.3);color:var(--violet)}
+
+/* ── Upload zone ── */
+.upload-zone{border:1.5px dashed var(--border-2);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:24px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:var(--blue-dim)}
+.upload-zone-icon{color:var(--text-3);margin-bottom:8px;transition:color .2s}
+.upload-zone:hover .upload-zone-icon,.upload-zone.drag .upload-zone-icon{color:var(--blue)}
+.upload-zone-title{font-size:.875rem;font-weight:500;color:var(--text-2);margin-bottom:3px}
+.upload-zone-sub{font-size:.75rem;color:var(--text-3)}
+
+/* ── Photo grid ── */
+.photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.photo-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.photo-card:hover{border-color:var(--border-2);box-shadow:var(--shadow)}
+.photo-thumb{position:relative;aspect-ratio:1;background:var(--bg-2);overflow:hidden}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.photo-card:hover .photo-thumb img{transform:scale(1.04)}
+.photo-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.55) 0%,transparent 50%);opacity:0;transition:opacity .2s;pointer-events:none}
+.photo-card:hover .photo-overlay{opacity:1}
+.photo-actions{position:absolute;top:7px;right:7px;display:flex;flex-direction:column;gap:5px;opacity:0;transition:opacity .15s}
+.photo-card:hover .photo-actions{opacity:1}
+.photo-action-btn{width:28px;height:28px;border-radius:6px;background:rgba(13,15,20,.78);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;text-decoration:none}
+.photo-action-btn.dl:hover{background:var(--blue);border-color:var(--blue)}
+.photo-action-btn.del:hover{background:var(--red);border-color:var(--red)}
+.photo-tag-strip{position:absolute;bottom:7px;left:7px;display:flex;gap:4px}
+.photo-tag-pill{padding:2px 8px;border-radius:99px;font-size:.65rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;border:1px solid transparent;transition:all .15s;backdrop-filter:blur(8px)}
+.photo-tag-pill.before{background:rgba(240,82,82,.22);border-color:rgba(240,82,82,.5);color:#ff8a8a}
+.photo-tag-pill.before:hover,.photo-tag-pill.before.active{background:var(--red);border-color:var(--red);color:#fff}
+.photo-tag-pill.after{background:rgba(34,211,122,.18);border-color:rgba(34,211,122,.45);color:#5de8a0}
+.photo-tag-pill.after:hover,.photo-tag-pill.after.active{background:var(--green);border-color:var(--green);color:#fff}
+.photo-meta{padding:8px 10px 10px;border-top:1px solid var(--border)}
+.photo-label-row{display:flex;align-items:center;gap:4px}
+.photo-label-display{flex:1;font-size:.78rem;font-weight:500;color:var(--text-2);padding:3px 5px;border-radius:5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.photo-label-display:hover{background:var(--bg-3)}
+.photo-notes-btn{width:24px;height:24px;border-radius:5px;border:none;background:transparent;color:var(--text-3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0}
+.photo-notes-btn:hover{background:var(--bg-3);color:var(--text-2)}
+.photo-notes-btn.active{color:var(--blue)}
+.photo-date{font-size:.68rem;color:var(--text-3);margin-top:4px;padding-left:5px}
+
+/* ── Empty state ── */
+.empty-state{grid-column:1/-1;padding:64px 20px;text-align:center}
+.empty-icon{color:var(--text-3);margin-bottom:14px}
+.empty-title{font-weight:600;font-size:1rem;letter-spacing:-.01em;color:var(--text-2);margin-bottom:6px}
+.empty-sub{font-size:.83rem;color:var(--text-3)}
+
+/* ── Modal ── */
+.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;z-index:200;padding:20px;animation:fadeIn .15s ease}
+.backdrop.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg-1);border:1px solid var(--border-2);border-radius:14px;box-shadow:var(--shadow-lg);padding:28px;width:100%;max-width:440px;animation:slideUp .18s ease}
+.modal.wide{max-width:520px}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-weight:600;font-size:1.05rem;letter-spacing:-.01em;margin-bottom:18px;color:var(--text)}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+.modal-photo-preview{display:flex;gap:14px;margin-bottom:20px;align-items:center}
+.modal-photo-preview img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--border-2);flex-shrink:0}
+.modal-photo-info .modal-photo-name{font-weight:500;font-size:.9rem;color:var(--text);margin-bottom:2px}
+.modal-photo-info .modal-photo-date{font-size:.75rem;color:var(--text-3)}
+.notes-fields{display:flex;flex-direction:column;gap:12px}
+.notes-label-inp{width:100%;padding:9px 12px;background:var(--bg-2);border:1px solid var(--border-2);border-radius:var(--r-sm);font-family:'Geist',sans-serif;font-size:.875rem;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+.notes-label-inp::placeholder{color:var(--text-3)}
+.notes-label-inp:focus{border-color:rgba(79,142,247,.55);box-shadow:0 0 0 3px rgba(79,142,247,.12)}
+
+/* ── Timeline ── */
+.tl-summary-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:32px}
+.tl-summary-card{background:var(--bg-1);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px}
+.tl-summary-label{font-size:.7rem;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:6px}
+.tl-summary-value{font-size:1.55rem;font-weight:700;letter-spacing:-.03em;color:var(--text);line-height:1}
+.tl-summary-sub{font-size:.72rem;color:var(--text-3);margin-top:4px}
+.tl-project{margin-bottom:36px}
+.tl-project-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.tl-project-name{font-family:'Instrument Serif',Georgia,serif;font-size:1.15rem;letter-spacing:-.01em;color:var(--text);cursor:pointer}
+.tl-project-name:hover{color:var(--blue)}
+.tl-project-meta{font-size:.75rem;color:var(--text-3);margin-top:2px}
+.tl-project-tags{display:flex;gap:6px;flex-wrap:wrap}
+.tl-ba-section{margin-bottom:20px}
+.tl-ba-label{display:flex;align-items:center;gap:8px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.tl-ba-label.before-label{color:var(--red)}
+.tl-ba-label.after-label{color:var(--green)}
+.tl-ba-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.tl-photo-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.tl-photo-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--bg-2);border:1px solid var(--border);cursor:pointer;transition:transform .15s,border-color .15s}
+.tl-photo-item:hover{transform:scale(1.02);border-color:var(--border-2)}
+.tl-photo-item img{width:100%;height:100%;object-fit:cover;display:block}
+.tl-photo-label{position:absolute;bottom:0;left:0;right:0;padding:18px 7px 7px;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 100%);font-size:.67rem;color:rgba(255,255,255,.9);font-weight:500;line-height:1.3}
+.tl-photo-tag{position:absolute;top:5px;left:5px;padding:2px 6px;border-radius:99px;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.tl-photo-tag.before{background:rgba(240,82,82,.85);color:#fff}
+.tl-photo-tag.after{background:rgba(34,211,122,.85);color:#fff}
+.tl-untagged-section{margin-top:16px}
+.tl-untagged-label{font-size:.7rem;color:var(--text-3);font-weight:500;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.tl-empty{text-align:center;padding:80px 20px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.tl-empty-icon{color:var(--text-3)}
+.tl-empty-title{font-family:'Instrument Serif',Georgia,serif;font-size:1.4rem;color:var(--text-2)}
+.tl-empty-sub{font-size:.875rem;color:var(--text-3);max-width:360px;line-height:1.6}
+
+/* ── Lightbox ── */
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center;padding:20px}
+.lightbox.open{display:flex}
+.lightbox-inner{position:relative;max-width:90vw;max-height:90vh}
+.lightbox-inner img{max-width:100%;max-height:90vh;border-radius:10px;display:block;box-shadow:var(--shadow-lg)}
+.lightbox-close{position:absolute;top:-12px;right:-12px;width:32px;height:32px;border-radius:50%;background:var(--bg-3);border:1px solid var(--border-2);color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.lightbox-close:hover{background:var(--red);color:#fff}
+.lightbox-label{font-weight:500;font-size:.9rem;color:var(--text);margin-top:12px;text-align:center}
+.lightbox-date{font-size:.75rem;color:var(--text-3);text-align:center;margin-top:3px}
+
+@media(max-width:700px){
+  #screen-login{flex-direction:column}
+  .login-right{display:none}
+  .login-left{padding:40px 24px;border-right:none;border-bottom:1px solid var(--border)}
+  .login-headline{font-size:1.8rem}
+  .page{padding:24px 16px}
+  .photo-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .tl-photo-row{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}
+  .nav-links .nav-link span{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- screens below -->
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="screen-login" class="screen">
+  <div class="login-left">
+    <div class="login-logo">
+      <div class="login-logo-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <span class="login-logo-name">JobVault</span>
+    </div>
+    <div class="login-headline">Every photo<br>is proof.</div>
+    <div class="login-sub">Protect your business with documented jobsite records. Sign in to access your project evidence vault.</div>
+    <div class="login-form">
+      <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input id="login-password" type="password" placeholder="Enter your password"/></div>
+      <div class="form-error" id="login-error"></div>
+      <button class="btn btn-primary" id="login-btn" style="width:100%;justify-content:center;padding:10px;">Sign In to JobVault</button>
+      <div class="login-divider"><span>or</span></div>
+      <button class="btn btn-ghost" id="create-account-btn" style="width:100%;justify-content:center;padding:10px;">Create an Account</button>
+      <pre id="debug-log" style="display:none;margin-top:14px;padding:10px 12px;background:#0c0e12;border:1px solid var(--border-2);border-radius:8px;font-size:.7rem;line-height:1.5;color:#9fb4d8;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow:auto;"></pre>
+    </div>
+  </div>
+  <div class="login-right">
+    <div class="trust-header">
+      <div class="trust-header-eyebrow">Built for Contractors</div>
+      <div class="trust-header-title">Settle disputes<br>with confidence.</div>
+    </div>
+    <div class="trust-list">
+      <div class="trust-item">
+        <div class="trust-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div><div class="trust-title">Dispute-ready documentation</div><div class="trust-desc">Never lose evidence of completed work. Every upload is timestamped and organized by project.</div></div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2z"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <div><div class="trust-title">Your records, always safe</div><div class="trust-desc">Secure, persistent storage for all your jobsite photos and notes — ready when you need them most.</div></div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+        <div><div class="trust-title">When questions arise, photos speak</div><div class="trust-desc">Before-and-after records, labeled photos, and detailed notes give you the full picture.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PROJECTS ══════════ -->
+<div id="screen-projects" class="screen">
+  <nav>
+    <div class="nav-logo" onclick="goToProjects()"><div class="nav-logo-mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="nav-logo-name">JobVault</span></div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="goToProjects()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>Projects</span></button>
+      <button class="nav-link" onclick="goToTimeline()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-8"/></svg><span>Timeline</span></button>
+    </div>
+    <div class="nav-right"><span class="nav-user" id="nav-user-projects"></span><button class="btn btn-ghost btn-icon" id="logout-btn" title="Log out"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div>
+  </nav>
+  <div class="page">
+    <div class="page-hdr">
+      <div><div class="page-title">Projects</div><div class="page-subtitle" id="projects-subtitle"></div></div>
+      <button class="btn btn-primary" id="new-project-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg> New Project</button>
+    </div>
+    <div id="proof-banner-projects" class="proof-banner" style="display:none;">
+      <div class="proof-banner-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="proof-banner-text"><strong>Never lose evidence of completed work.</strong> Your documented records are ready to settle disputes, verify scope, and protect your business.</div>
+    </div>
+    <div class="section-hdr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> Active Projects</div>
+    <div class="proj-grid" id="proj-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════ PROJECT DETAIL ══════════ -->
+<div id="screen-project" class="screen">
+  <nav>
+    <div class="nav-logo" onclick="goToProjects()"><div class="nav-logo-mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="nav-logo-name">JobVault</span></div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="goToProjects()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>Projects</span></button>
+      <button class="nav-link" onclick="goToTimeline()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-8"/></svg><span>Timeline</span></button>
+    </div>
+    <div class="nav-right"><span class="nav-user" id="nav-user-project"></span><button class="btn btn-ghost btn-icon" onclick="logout()" title="Log out"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div>
+  </nav>
+  <div class="page">
+    <div class="page-hdr">
+      <div class="page-hdr-left">
+        <button class="back-btn" onclick="goToProjects()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg></button>
+        <div><div class="page-title" id="project-title"></div><div class="page-subtitle" id="project-subtitle"></div></div>
+      </div>
+      <button class="btn btn-primary" id="upload-btn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg> Upload Photos</button>
+      <input type="file" id="file-input" multiple accept="image/*" style="display:none;"/>
+    </div>
+    <div class="proof-banner">
+      <div class="proof-banner-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="proof-banner-text"><strong>Protect your business with documented jobsite records.</strong> Tag photos as Before or After, add labels and notes to build an airtight record of every job.</div>
+    </div>
+    <div class="upload-zone" id="upload-zone">
+      <div class="upload-zone-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <div class="upload-zone-title">Drop photos here or click to browse</div>
+      <div class="upload-zone-sub">JPG, PNG, HEIC — each photo timestamped automatically</div>
+    </div>
+    <div id="stats-bar" class="stats-bar" style="display:none;"></div>
+    <div id="photos-section" style="display:none;">
+      <div class="section-hdr"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg> Project Photos</div>
+      <div class="photo-grid" id="photo-grid"></div>
+    </div>
+    <div id="photos-empty" class="empty-state" style="display:none;">
+      <div class="empty-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+      <div class="empty-title">No photos yet</div>
+      <div class="empty-sub">Upload your first photo to start building your project record.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TIMELINE ══════════ -->
+<div id="screen-timeline" class="screen">
+  <nav>
+    <div class="nav-logo" onclick="goToProjects()"><div class="nav-logo-mark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><span class="nav-logo-name">JobVault</span></div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="goToProjects()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg><span>Projects</span></button>
+      <button class="nav-link active" onclick="goToTimeline()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-8"/></svg><span>Timeline</span></button>
+    </div>
+    <div class="nav-right"><span class="nav-user" id="nav-user-timeline"></span><button class="btn btn-ghost btn-icon" onclick="logout()" title="Log out"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button></div>
+  </nav>
+  <div class="page">
+    <div class="page-hdr"><div><div class="page-title">Timeline</div><div class="page-subtitle">A visual overview of every project and photo</div></div></div>
+    <div id="tl-summary-bar" class="tl-summary-bar"></div>
+    <div id="tl-content"></div>
+  </div>
+</div>
+
+<!-- ══════════ MODALS ══════════ -->
+<!-- Create Account -->
+<div class="backdrop" id="modal-create-account">
+  <div class="modal">
+    <div class="modal-title">Create your account</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="field"><label>Full Name</label><input id="signup-name" type="text" placeholder="Your full name"/></div>
+      <div class="field"><label>Email</label><input id="signup-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input id="signup-password" type="password" placeholder="At least 6 characters"/></div>
+      <div class="field"><label>Confirm Password</label><input id="signup-confirm" type="password" placeholder="Repeat your password"/></div>
+    </div>
+    <div class="form-error" id="signup-error"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-create-account">Cancel</button>
+      <button class="btn btn-primary" id="confirm-create-account">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Project -->
+<div class="backdrop" id="modal-new-project">
+  <div class="modal">
+    <div class="modal-title">New Project</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="field"><label>Project Name</label><input id="new-project-input" type="text" placeholder="e.g. 123 Main St — Kitchen Remodel"/></div>
+      <div style="display:flex;gap:12px;">
+        <div class="field" style="flex:1;"><label>Contract Price</label><input id="new-project-contract" type="number" min="0" step="0.01" placeholder="$0.00"/></div>
+        <div class="field" style="flex:1;"><label>Total Job Cost</label><input id="new-project-cost" type="number" min="0" step="0.01" placeholder="$0.00"/></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-new-project">Cancel</button>
+      <button class="btn btn-primary" id="confirm-new-project">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Project -->
+<div class="backdrop" id="modal-delete-project">
+  <div class="modal">
+    <div class="modal-title">Delete Project?</div>
+    <p id="delete-project-msg" style="font-size:.875rem;color:var(--text-2);line-height:1.6;"></p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-delete-project">Cancel</button>
+      <button class="btn btn-danger" id="confirm-delete-project">Delete Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Details (label + notes) -->
+<div class="backdrop" id="modal-notes">
+  <div class="modal wide">
+    <div class="modal-title">Photo Details</div>
+    <div class="modal-photo-preview" id="notes-photo-preview"></div>
+    <div class="notes-fields">
+      <div class="field"><label>Customer Name</label><input class="notes-label-inp" id="notes-customer-inp" type="text" placeholder="e.g. John Smith" maxlength="120"/></div>
+      <div class="field"><label>Label</label><input class="notes-label-inp" id="notes-label-inp" type="text" placeholder="e.g. North wall damage, bathroom tile, roof flashing…" maxlength="80"/></div>
+      <div class="field"><label>Notes</label><textarea class="notes-ta" id="notes-textarea" placeholder="Document observations, measurements, damage, conditions, follow-up actions…"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cancel-notes">Cancel</button>
+      <button class="btn btn-primary" id="save-notes">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightbox-close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    <img id="lightbox-img" src="" alt=""/>
+    <div class="lightbox-label" id="lightbox-label"></div>
+    <div class="lightbox-date" id="lightbox-date"></div>
+  </div>
+</div>
+
+<script>
+// ─── Supabase init ────────────────────────────────────────────────────────────
+let sb = null;
+let sbInitError = null;
+try {
+  if (typeof supabase === 'undefined' || !supabase.createClient) {
+    sbInitError = 'The Supabase library failed to load. Check your internet connection — the app needs to download it from cdn.jsdelivr.net. If you are offline or a network/ad blocker is blocking the CDN, sign-in cannot work.';
+  } else {
+    const { createClient } = supabase;
+    sb = createClient(
+      'https://izinbhmqhkoookvastyp.supabase.co',
+      'sb_publishable_B_EFWLWG6necibs4zft4Zg_sLIpG_gQ'
+    );
+  }
+} catch (e) {
+  sbInitError = 'Could not initialize Supabase: ' + (e.message || e);
+}
+
+// ─── App state ────────────────────────────────────────────────────────────────
+let currentUser     = null;
+let currentProfile  = null;
+let projects        = [];       // [{id, name, created_at, updated_at, photos:[]}]
+let currentProjectId = null;
+let pendingDeleteId  = null;
+let pendingNotesId   = null;
+let sessionLoaded    = false;
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const fmt     = d => new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const money   = n => (n===null||n===undefined||n==='') ? null : '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const nowISO  = () => new Date().toISOString();
+const $       = id => document.getElementById(id);
+const escHtml = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// ─── Debug logger (visible on the login screen) ───────────────────────────────
+function dbg(msg){
+  const el = document.getElementById('debug-log');
+  if (el){ el.style.display='block'; el.textContent += msg + '\n'; }
+  console.log('[JobVault] ' + msg);
+}
+const currentProject = () => projects.find(p => p.id === currentProjectId) || null;
+
+function svgIcon(paths, size=15){
+  const arr = Array.isArray(paths)?paths:[paths];
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${arr.map(d=>`<path d="${d}"/>`).join('')}</svg>`;
+}
+const IC = {
+  folder:   ['M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'],
+  trash:    ['M3 6h18','M8 6V4h8v2','M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'],
+  image:    ['M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z','M8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z','M21 15l-5-5L5 21'],
+  clock:    ['M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z','M12 6v6l4 2'],
+  check:    ['M20 6L9 17l-5-5'],
+  notes:    ['M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z','M14 2v6h6','M16 13H8','M16 17H8','M10 9H8'],
+  download: ['M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4','M7 10l5 5 5-5','M12 15V3'],
+  camera:   ['M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z','M12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z'],
+};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function openModal(id)  { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+function setLoading(show){ $('app-loading').style.display = show ? 'flex' : 'none'; }
+function showErr(id, msg){ const el=$(id); el.textContent=msg; el.style.display=msg?'block':'none'; }
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+async function login(){
+  dbg('Sign-in clicked.');
+  if (!sb){ dbg('ERROR: Supabase client is null. ' + (sbInitError||'')); showErr('login-error', sbInitError || 'Supabase is not ready. Reload the page.'); return; }
+  const email    = $('login-email').value.trim();
+  const password = $('login-password').value;
+  showErr('login-error','');
+  if (!email||!password){ dbg('Missing email or password.'); showErr('login-error','Please fill in all fields.'); return; }
+  const btn = $('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  dbg('Calling signInWithPassword for ' + email + ' …');
+  try {
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('Request timed out after 12s — the connection to Supabase is being blocked. This almost always means the page is opened as a file:// document. Serve it over http instead (see notes).')), 12000));
+    const { data, error } = await Promise.race([
+      sb.auth.signInWithPassword({ email, password }),
+      timeout
+    ]);
+    btn.disabled = false; btn.textContent = 'Sign In to JobVault';
+    if (error){
+      dbg('Supabase returned error: ' + JSON.stringify(error));
+      const m = error.message || '';
+      const msg = m.includes('Invalid login') ? 'Incorrect email or password.' :
+                  m.includes('Email not confirmed') ? 'Email not confirmed. Turn off "Confirm email" in Supabase → Authentication → Providers → Email, then try again.' :
+                  m;
+      showErr('login-error', msg);
+      return;
+    }
+    dbg('Sign-in success! user id: ' + (data?.user?.id || 'none'));
+    if (data?.user) {
+      currentUser = data.user;
+      sessionLoaded = true;
+      await loadProfile();
+      await loadProjects();
+      showScreen('screen-projects');
+      renderProjects();
+    }
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Sign In to JobVault';
+    dbg('EXCEPTION thrown: ' + (err.message || err));
+    showErr('login-error', 'Could not reach the server: ' + (err.message || err) + '. Likely causes: opened as a file:// page, offline, or a blocker is stopping the Supabase request.');
+  }
+}
+
+async function signup(){
+  const name     = $('signup-name').value.trim();
+  const email    = $('signup-email').value.trim();
+  const password = $('signup-password').value;
+  const confirm  = $('signup-confirm').value;
+  showErr('signup-error','');
+  if (!name||!email||!password||!confirm){ showErr('signup-error','Please fill in all fields.'); return; }
+  if (password !== confirm){ showErr('signup-error','Passwords do not match.'); return; }
+  if (password.length < 6){ showErr('signup-error','Password must be at least 6 characters.'); return; }
+  const btn = $('confirm-create-account');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  // Sign up — if email confirmation is OFF in Supabase dashboard, this returns a full session
+  const { data: signUpData, error: signUpErr } = await sb.auth.signUp({ email, password });
+  if (signUpErr){
+    const msg = signUpErr.message.includes('rate limit') || signUpErr.message.includes('email')
+      ? 'Too many signup attempts. Please wait a few minutes and try again, or disable email confirmation in your Supabase Auth settings.'
+      : signUpErr.message;
+    showErr('signup-error', msg);
+    btn.disabled = false; btn.textContent = 'Create Account'; return;
+  }
+
+  // If we got a session immediately, email confirmation is off — great, proceed
+  // If not, sign in right away (works when email confirmation is disabled)
+  let userId = signUpData?.user?.id;
+  if (!signUpData?.session) {
+    const { data: siData, error: siErr } = await sb.auth.signInWithPassword({ email, password });
+    if (siErr){
+      showErr('signup-error', 'Account created! Please sign in to continue.');
+      closeModal('modal-create-account');
+      $('login-email').value = email;
+      btn.disabled = false; btn.textContent = 'Create Account'; return;
+    }
+    userId = siData?.user?.id;
+  }
+
+  // Save display name to profiles table
+  if (userId) {
+    await sb.from('profiles').upsert({ id: userId, full_name: name, username: email.split('@')[0] });
+  }
+  closeModal('modal-create-account');
+  btn.disabled = false; btn.textContent = 'Create Account';
+  // onAuthStateChange handles routing automatically
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  currentUser = null; currentProfile = null;
+  projects = []; currentProjectId = null;
+  sessionLoaded = false;
+  showScreen('screen-login');
+}
+
+async function loadProfile(){
+  if (!currentUser) return;
+  const { data } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+}
+
+function displayName(){
+  return currentProfile?.full_name || currentUser?.email?.split('@')[0] || 'User';
+}
+
+// ─── Projects (Supabase) ──────────────────────────────────────────────────────
+async function loadProjects(){
+  if (!currentUser) return;
+  const { data: projs } = await sb.from('projects')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+  if (!projs) { projects = []; return; }
+  const { data: photos } = await sb.from('photos')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('uploaded_at', { ascending: false });
+  const photoMap = {};
+  (photos||[]).forEach(ph => {
+    if (!photoMap[ph.project_id]) photoMap[ph.project_id] = [];
+    photoMap[ph.project_id].push(ph);
+  });
+  projects = projs.map(p => ({ ...p, photos: photoMap[p.id] || [] }));
+}
+
+async function createProject(){
+  const name = $('new-project-input').value.trim();
+  if (!name) return;
+  if (!currentUser) { showErr('login-error','Session expired — please sign in again.'); showScreen('screen-login'); return; }
+  const contractRaw = $('new-project-contract').value;
+  const costRaw     = $('new-project-cost').value;
+  const contract_price = contractRaw === '' ? null : parseFloat(contractRaw);
+  const total_job_cost = costRaw === '' ? null : parseFloat(costRaw);
+  const btn = $('confirm-new-project');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  const { data, error } = await sb.from('projects')
+    .insert({ name, user_id: currentUser.id, contract_price, total_job_cost })
+    .select().single();
+  btn.disabled = false; btn.textContent = 'Create Project';
+  if (error){
+    alert('Could not create project: ' + error.message);
+    return;
+  }
+  if (!data) return;
+  projects.unshift({ ...data, photos: [] });
+  closeModal('modal-new-project');
+  $('new-project-input').value = '';
+  $('new-project-contract').value = '';
+  $('new-project-cost').value = '';
+  renderProjects();
+}
+
+async function deleteProject(){
+  if (!pendingDeleteId) return;
+  await sb.from('photos').delete().eq('project_id', pendingDeleteId);
+  await sb.from('projects').delete().eq('id', pendingDeleteId);
+  projects = projects.filter(p => p.id !== pendingDeleteId);
+  pendingDeleteId = null;
+  closeModal('modal-delete-project');
+  renderProjects();
+}
+
+function confirmDeleteProject(id){
+  pendingDeleteId = id;
+  const proj = projects.find(p=>p.id===id);
+  $('delete-project-msg').innerHTML = `<strong style="color:var(--text)">${escHtml(proj.name)}</strong> and all its documented photos will be permanently deleted. This cannot be undone.`;
+  openModal('modal-delete-project');
+}
+
+// ─── Photos (Supabase) ────────────────────────────────────────────────────────
+async function processFiles(files){
+  const proj = currentProject(); if (!proj) return;
+  const fileArr = Array.from(files).filter(f=>f.type.startsWith('image/'));
+  if (!fileArr.length) return;
+  let firstId = null;
+  for (const file of fileArr) {
+    const src = await readFileAsDataURL(file);
+    const { data, error } = await sb.from('photos').insert({
+      project_id: proj.id,
+      user_id: currentUser.id,
+      name: file.name,
+      src,
+      label: '',
+      notes: '',
+      tag: null,
+      uploaded_at: nowISO(),
+    }).select().single();
+    if (error || !data) continue;
+    proj.photos.unshift(data);
+    if (!firstId) firstId = data.id;
+    // Touch project updated_at
+    const ts = nowISO();
+    await sb.from('projects').update({ updated_at: ts }).eq('id', proj.id);
+    proj.updated_at = ts;
+  }
+  renderProject();
+  if (firstId) openNotesModal(firstId);
+}
+
+function readFileAsDataURL(file){
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = e => res(e.target.result);
+    r.readAsDataURL(file);
+  });
+}
+
+async function deletePhoto(id){
+  const proj = currentProject(); if (!proj) return;
+  await sb.from('photos').delete().eq('id', id);
+  proj.photos = proj.photos.filter(ph=>ph.id!==id);
+  renderProject();
+}
+
+async function updatePhotoField(photoId, field, value){
+  const proj = currentProject(); if (!proj) return;
+  const photo = proj.photos.find(ph=>ph.id===photoId); if (!photo) return;
+  photo[field] = value;
+  await sb.from('photos').update({ [field]: value }).eq('id', photoId);
+}
+
+async function togglePhotoTag(photoId, tagVal){
+  const proj = currentProject(); if (!proj) return;
+  const photo = proj.photos.find(ph=>ph.id===photoId); if (!photo) return;
+  const newTag = photo.tag === tagVal ? null : tagVal;
+  photo.tag = newTag;
+  await sb.from('photos').update({ tag: newTag }).eq('id', photoId);
+  renderProject();
+}
+
+function openNotesModal(photoId){
+  const proj = currentProject(); if (!proj) return;
+  const photo = proj.photos.find(ph=>ph.id===photoId); if (!photo) return;
+  pendingNotesId = photoId;
+  $('notes-customer-inp').value = photo.customer_name || '';
+  $('notes-label-inp').value  = photo.label || '';
+  $('notes-textarea').value   = photo.notes || '';
+  $('notes-photo-preview').innerHTML = `
+    <img src="${photo.src}" alt=""/>
+    <div class="modal-photo-info">
+      <div class="modal-photo-name">${escHtml(photo.label || photo.name)}</div>
+      <div class="modal-photo-date">${photo.uploaded_at ? fmt(photo.uploaded_at) : ''}</div>
+    </div>`;
+  openModal('modal-notes');
+  setTimeout(()=>$('notes-customer-inp').focus(), 50);
+}
+
+async function saveNotes(){
+  if (!pendingNotesId) return;
+  const customer = $('notes-customer-inp').value.trim();
+  const label = $('notes-label-inp').value.trim();
+  const notes = $('notes-textarea').value;
+  await updatePhotoField(pendingNotesId, 'customer_name', customer);
+  await updatePhotoField(pendingNotesId, 'label', label);
+  await updatePhotoField(pendingNotesId, 'notes', notes);
+  pendingNotesId = null;
+  closeModal('modal-notes');
+  renderProject();
+}
+
+// ─── Routing ──────────────────────────────────────────────────────────────────
+async function goToProjects(){
+  currentProjectId = null;
+  showScreen('screen-projects');
+  renderProjects();
+}
+async function goToTimeline(){
+  showScreen('screen-timeline');
+  renderTimeline();
+}
+function openProject(id){
+  currentProjectId = id;
+  showScreen('screen-project');
+  renderProject();
+}
+
+// ─── Render: Projects ─────────────────────────────────────────────────────────
+function renderProjects(){
+  const name = displayName();
+  $('nav-user-projects').textContent = name;
+  const totalPhotos = projects.reduce((a,p)=>a+p.photos.length,0);
+  $('projects-subtitle').textContent = `${projects.length} project${projects.length!==1?'s':''} · ${totalPhotos} photo${totalPhotos!==1?'s':''} documented`;
+  $('proof-banner-projects').style.display = projects.length > 0 ? 'flex' : 'none';
+  const grid = $('proj-grid');
+  if (!projects.length){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">${svgIcon(IC.folder,40)}<div class="empty-title" style="margin-top:14px;">No projects yet</div><div class="empty-sub">Create your first project to start documenting jobsite records.</div></div>`;
+    return;
+  }
+  grid.innerHTML = projects.map(p=>{
+    const before = p.photos.filter(ph=>ph.tag==='before').length;
+    const after  = p.photos.filter(ph=>ph.tag==='after').length;
+    return `<div class="proj-card" data-id="${p.id}">
+      <div class="proj-card-top">
+        <div class="proj-icon-wrap">${svgIcon(IC.folder,17)}</div>
+        <button class="proj-del-btn" data-del="${p.id}">${svgIcon(IC.trash,14)}</button>
+      </div>
+      <div class="proj-name">${escHtml(p.name)}</div>
+      <div class="proj-meta">${p.updated_at?'Updated '+fmt(p.updated_at):'Created '+fmt(p.created_at)}</div>
+      <div class="proj-footer">
+        <div class="proj-stat">${svgIcon(IC.image,13)} ${p.photos.length} photo${p.photos.length!==1?'s':''}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          ${before?`<span class="badge red">${before} before</span>`:''}
+          ${after?`<span class="badge green">${after} after</span>`:''}
+          ${p.photos.length>0&&!before&&!after?`<span class="badge green">${svgIcon(IC.check,11)} Documented</span>`:''}
+          ${p.photos.length===0?`<span class="badge">No photos</span>`:''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.proj-card').forEach(card=>card.addEventListener('click',e=>{if(e.target.closest('[data-del]'))return;openProject(card.dataset.id);}));
+  grid.querySelectorAll('[data-del]').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();confirmDeleteProject(btn.dataset.del);}));
+}
+
+// ─── Render: Project Detail ───────────────────────────────────────────────────
+function renderProject(){
+  const proj = currentProject(); if (!proj) return;
+  $('nav-user-project').textContent = displayName();
+  $('project-title').textContent = proj.name;
+  const dateStr = proj.updated_at?`Updated ${fmt(proj.updated_at)}`:`Created ${fmt(proj.created_at)}`;
+  const contract = money(proj.contract_price);
+  const cost     = money(proj.total_job_cost);
+  let profitStr = '';
+  if (proj.contract_price!=null && proj.total_job_cost!=null) {
+    const profit = Number(proj.contract_price) - Number(proj.total_job_cost);
+    const sign = profit >= 0 ? '' : '−';
+    profitStr = ` · Profit ${sign}$${Math.abs(profit).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  }
+  const finBits = [];
+  if (contract) finBits.push(`Contract ${contract}`);
+  if (cost) finBits.push(`Cost ${cost}`);
+  $('project-subtitle').textContent = dateStr + (finBits.length?` · ${finBits.join(' · ')}${profitStr}`:'');
+  const photos = proj.photos;
+  if (!photos.length){
+    $('stats-bar').style.display='none'; $('photos-section').style.display='none'; $('photos-empty').style.display='block';
+    return;
+  }
+  $('photos-empty').style.display='none';
+  const before=photos.filter(ph=>ph.tag==='before').length, after=photos.filter(ph=>ph.tag==='after').length;
+  $('stats-bar').style.display='flex';
+  $('stats-bar').innerHTML=`
+    <div class="stat-pill">${svgIcon(IC.image,13)} <strong>${photos.length}</strong> photo${photos.length!==1?'s':''}</div>
+    <div class="stat-pill">${svgIcon(IC.clock,13)} Last upload ${fmt(photos[0].uploaded_at)}</div>
+    ${before?`<div class="stat-pill" style="color:var(--red)"><strong>${before}</strong> before</div>`:''}
+    ${after?`<div class="stat-pill" style="color:var(--green)"><strong>${after}</strong> after</div>`:''}
+  `;
+  $('photos-section').style.display='block';
+  $('photo-grid').innerHTML=photos.map(ph=>`
+    <div class="photo-card" data-photo-id="${ph.id}">
+      <div class="photo-thumb">
+        <img src="${ph.src}" alt="${escHtml(ph.label||ph.name)}" loading="lazy"/>
+        <div class="photo-overlay"></div>
+        <div class="photo-actions">
+          <a class="photo-action-btn dl" href="${ph.src}" download="${escHtml(ph.label?ph.label+'.jpg':ph.name)}">${svgIcon(IC.download,13)}</a>
+          <button class="photo-action-btn del" data-del-photo="${ph.id}">${svgIcon(IC.trash,13)}</button>
+        </div>
+        <div class="photo-tag-strip">
+          <button class="photo-tag-pill before${ph.tag==='before'?' active':''}" data-tag-id="${ph.id}" data-tag-val="before">Before</button>
+          <button class="photo-tag-pill after${ph.tag==='after'?' active':''}" data-tag-id="${ph.id}" data-tag-val="after">After</button>
+        </div>
+      </div>
+      <div class="photo-meta">
+        <div class="photo-label-row">
+          <span class="photo-label-display" data-open-notes="${ph.id}">${ph.label?escHtml(ph.label):'<span style="color:var(--text-3);font-style:italic;">Add label…</span>'}</span>
+          <button class="photo-notes-btn${ph.notes?' active':''}" data-notes-id="${ph.id}">${svgIcon(IC.notes,13)}</button>
+        </div>
+        ${ph.uploaded_at?`<div class="photo-date">Uploaded ${fmt(ph.uploaded_at)}</div>`:''}
+      </div>
+    </div>
+  `).join('');
+  $('photo-grid').querySelectorAll('[data-del-photo]').forEach(b=>b.addEventListener('click',()=>deletePhoto(b.dataset.delPhoto)));
+  $('photo-grid').querySelectorAll('.photo-notes-btn').forEach(b=>b.addEventListener('click',()=>openNotesModal(b.dataset.notesId)));
+  $('photo-grid').querySelectorAll('[data-open-notes]').forEach(b=>b.addEventListener('click',()=>openNotesModal(b.dataset.openNotes)));
+  $('photo-grid').querySelectorAll('.photo-tag-pill').forEach(b=>b.addEventListener('click',()=>togglePhotoTag(b.dataset.tagId,b.dataset.tagVal)));
+}
+
+// ─── Render: Timeline ─────────────────────────────────────────────────────────
+function renderTimeline(){
+  $('nav-user-timeline').textContent = displayName();
+  const allPhotos=projects.flatMap(p=>p.photos);
+  const tb=allPhotos.filter(ph=>ph.tag==='before').length, ta=allPhotos.filter(ph=>ph.tag==='after').length;
+  $('tl-summary-bar').innerHTML=`
+    <div class="tl-summary-card"><div class="tl-summary-label">Projects</div><div class="tl-summary-value">${projects.length}</div><div class="tl-summary-sub">total documented</div></div>
+    <div class="tl-summary-card"><div class="tl-summary-label">Photos</div><div class="tl-summary-value">${allPhotos.length}</div><div class="tl-summary-sub">across all projects</div></div>
+    <div class="tl-summary-card" style="border-color:rgba(240,82,82,.25)"><div class="tl-summary-label" style="color:var(--red)">Before</div><div class="tl-summary-value" style="color:var(--red)">${tb}</div><div class="tl-summary-sub">tagged photos</div></div>
+    <div class="tl-summary-card" style="border-color:rgba(34,211,122,.25)"><div class="tl-summary-label" style="color:var(--green)">After</div><div class="tl-summary-value" style="color:var(--green)">${ta}</div><div class="tl-summary-sub">tagged photos</div></div>
+  `;
+  const content=$('tl-content');
+  if (!projects.length){
+    content.innerHTML=`<div class="tl-empty"><div class="tl-empty-icon">${svgIcon(IC.camera,48)}</div><div class="tl-empty-title">No projects yet</div><div class="tl-empty-sub">Create a project and upload photos to see your jobsite timeline here.</div></div>`;
+    return;
+  }
+  const sorted=[...projects].sort((a,b)=>new Date(b.updated_at||b.created_at)-new Date(a.updated_at||a.created_at));
+  content.innerHTML=sorted.map(proj=>{
+    const before=proj.photos.filter(ph=>ph.tag==='before'),after=proj.photos.filter(ph=>ph.tag==='after'),untagged=proj.photos.filter(ph=>!ph.tag);
+    const thumb=ph=>`<div class="tl-photo-item" data-src="${ph.src}" data-label="${escHtml(ph.label||ph.name)}" data-date="${ph.uploaded_at?fmt(ph.uploaded_at):''}"><img src="${ph.src}" alt="" loading="lazy"/>${ph.tag?`<div class="tl-photo-tag ${ph.tag}">${ph.tag}</div>`:''} ${ph.label?`<div class="tl-photo-label">${escHtml(ph.label)}</div>`:''}</div>`;
+    const bSec=before.length?`<div class="tl-ba-section"><div class="tl-ba-label before-label">Before — ${before.length} photo${before.length!==1?'s':''}</div><div class="tl-photo-row">${before.map(thumb).join('')}</div></div>`:'';
+    const aSec=after.length?`<div class="tl-ba-section"><div class="tl-ba-label after-label">After — ${after.length} photo${after.length!==1?'s':''}</div><div class="tl-photo-row">${after.map(thumb).join('')}</div></div>`:'';
+    const uSec=untagged.length?`<div class="tl-untagged-section"><div class="tl-untagged-label">Untagged — ${untagged.length}</div><div class="tl-photo-row">${untagged.map(thumb).join('')}</div></div>`:'';
+    const noPh=!proj.photos.length?`<div style="padding:20px 0;font-size:.83rem;color:var(--text-3);">No photos uploaded yet.</div>`:'';
+    return `<div class="tl-project">
+      <div class="tl-project-header">
+        <div><div class="tl-project-name" data-open="${proj.id}">${escHtml(proj.name)}</div><div class="tl-project-meta">${proj.updated_at?'Updated '+fmt(proj.updated_at):'Created '+fmt(proj.created_at)} · ${proj.photos.length} photo${proj.photos.length!==1?'s':''}</div></div>
+        <div class="tl-project-tags">
+          ${before.length?`<span class="badge red">${before.length} before</span>`:''}
+          ${after.length?`<span class="badge green">${after.length} after</span>`:''}
+          ${proj.photos.length>0&&!before.length&&!after.length?`<span class="badge green">${svgIcon(IC.check,11)} Documented</span>`:''}
+          ${proj.photos.length===0?`<span class="badge">No photos</span>`:''}
+        </div>
+      </div>${bSec}${aSec}${uSec}${noPh}
+    </div>`;
+  }).join('');
+  content.querySelectorAll('.tl-project-name[data-open]').forEach(el=>el.addEventListener('click',()=>openProject(el.dataset.open)));
+  content.querySelectorAll('.tl-photo-item').forEach(item=>item.addEventListener('click',()=>openLightbox(item.dataset.src,item.dataset.label,item.dataset.date)));
+}
+
+function openLightbox(src,label,date){
+  $('lightbox-img').src=src; $('lightbox-label').textContent=label||''; $('lightbox-date').textContent=date||'';
+  $('lightbox').classList.add('open');
+}
+function closeLightbox(){ $('lightbox').classList.remove('open'); $('lightbox-img').src=''; }
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Show login immediately — Supabase will redirect if a session exists
+  showScreen('screen-login');
+
+  // If Supabase failed to load, tell the user up front (but still wire up buttons)
+  if (!sb) {
+    showErr('login-error', sbInitError || 'Supabase failed to load.');
+    dbg('Boot: Supabase library NOT loaded.');
+  } else {
+    dbg('Boot: Supabase library loaded OK.');
+  }
+
+  if (sb) sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_OUT') {
+      currentUser = null; currentProfile = null;
+      projects = []; currentProjectId = null;
+      showScreen('screen-login');
+      return;
+    }
+
+    if (session?.user) {
+      const isNewUser = currentUser?.id !== session.user.id;
+      currentUser = session.user;
+
+      if (!sessionLoaded || isNewUser) {
+        sessionLoaded = true;
+        await loadProfile();
+        await loadProjects();
+        showScreen('screen-projects');
+        renderProjects();
+      }
+    }
+  });
+
+  // Auth listeners
+  $('login-btn').addEventListener('click', login);
+  dbg('Boot: sign-in button listener attached.');
+  $('login-email').addEventListener('keydown', e=>e.key==='Enter'&&login());
+  $('login-password').addEventListener('keydown', e=>e.key==='Enter'&&login());
+  $('create-account-btn').addEventListener('click', ()=>{
+    ['signup-name','signup-email','signup-password','signup-confirm'].forEach(id=>$(id).value='');
+    showErr('signup-error','');
+    openModal('modal-create-account');
+    setTimeout(()=>$('signup-name').focus(),50);
+  });
+  $('cancel-create-account').addEventListener('click', ()=>closeModal('modal-create-account'));
+  $('modal-create-account').addEventListener('click', e=>{if(e.target===$('modal-create-account'))closeModal('modal-create-account');});
+  $('confirm-create-account').addEventListener('click', signup);
+
+  $('logout-btn').addEventListener('click', logout);
+
+  // Projects
+  $('new-project-btn').addEventListener('click', ()=>{$('new-project-input').value='';$('new-project-contract').value='';$('new-project-cost').value='';openModal('modal-new-project');setTimeout(()=>$('new-project-input').focus(),50);});
+  $('cancel-new-project').addEventListener('click', ()=>closeModal('modal-new-project'));
+  $('confirm-new-project').addEventListener('click', createProject);
+  $('new-project-input').addEventListener('keydown', e=>e.key==='Enter'&&createProject());
+  $('modal-new-project').addEventListener('click', e=>{if(e.target===$('modal-new-project'))closeModal('modal-new-project');});
+  $('cancel-delete-project').addEventListener('click', ()=>{pendingDeleteId=null;closeModal('modal-delete-project');});
+  $('confirm-delete-project').addEventListener('click', deleteProject);
+  $('modal-delete-project').addEventListener('click', e=>{if(e.target===$('modal-delete-project'))closeModal('modal-delete-project');});
+
+  // Upload
+  $('upload-btn').addEventListener('click', ()=>$('file-input').click());
+  $('file-input').addEventListener('change', e=>{processFiles(e.target.files);e.target.value='';});
+  const zone=$('upload-zone');
+  zone.addEventListener('click', ()=>$('file-input').click());
+  zone.addEventListener('dragover', e=>{e.preventDefault();zone.classList.add('drag');});
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag'));
+  zone.addEventListener('drop', e=>{e.preventDefault();zone.classList.remove('drag');processFiles(e.dataTransfer.files);});
+
+  // Notes modal
+  $('cancel-notes').addEventListener('click', ()=>{pendingNotesId=null;closeModal('modal-notes');renderProject();});
+  $('save-notes').addEventListener('click', saveNotes);
+  $('modal-notes').addEventListener('click', e=>{if(e.target===$('modal-notes'))saveNotes();});
+
+  // Lightbox
+  $('lightbox-close').addEventListener('click', closeLightbox);
+  $('lightbox').addEventListener('click', e=>{if(e.target===$('lightbox'))closeLightbox();});
+
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){
+      closeLightbox();
+      closeModal('modal-new-project');
+      closeModal('modal-delete-project');
+      closeModal('modal-create-account');
+      if($('modal-notes').classList.contains('open'))saveNotes();
+    }
+  });
+});
+</script>
+</body>
+</html>
